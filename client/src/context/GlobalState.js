@@ -20,11 +20,11 @@ export const GlobalProvider = ({ children }) => {
     // New Action - GET
     async function getTransactions() {
         try {
-            const variable = await axios.get('/api/v1/transactions');
+            const res = await axios.get('/api/v1/transactions');
 
             dispatch({
                 type: "GET_TRANSACTION",
-                payload: variable.data.data
+                payload: res.data.data
             });
         } catch (error) {
             dispatch({
@@ -51,11 +51,26 @@ export const GlobalProvider = ({ children }) => {
     }
 
     // Actions
-    function addTransaction(transaction) {
-        dispatch({
-            type: 'ADD_TRANSACTION',
-            payload: transaction
-        });
+    async function addTransaction(transaction) {
+        const config = {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+
+        try {
+            const res = await axios.post('/api/v1/transactions/', transaction, config);
+            
+            dispatch({
+                type: 'ADD_TRANSACTION',
+                payload: res.data.data
+            });        
+        } catch (error) {
+            dispatch({
+                type: "TRANSACTION_ERROR",
+                payload: error.response.data.error
+            })
+        }
     }
     
     return (<GlobalContext.Provider value={{
